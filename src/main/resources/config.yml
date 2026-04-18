@@ -1,15 +1,21 @@
   # YanyangPlugin 配置文件
-  # 扫地姬设置
 
+  # 扫地姬设置
   cleaner:
     # 是否启用扫地姬
     enabled: true
 
+    # 调试模式：开启后每次检测都会在控制台显示详细信息
+    debug: false
+
+    # 计数模式：entity=按掉落物实体数量计算，item=按实际物品总数计算（堆叠物品会累加）
+    count_mode: "item"
+
     # 当掉落物数量超过此值时触发清理
-    threshold: 50
+    threshold: 1000
 
     # 检查间隔（秒）
-    interval: 10
+    interval: 15
 
     # 清理时的广播消息（支持颜色代码）
     message: "&b&l[扫地姬] &6&o&l已清理 %count% 个掉落物！"
