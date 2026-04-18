@@ -1,0 +1,4 @@
+name: YanyangPlugin
+version: '1'
+main: cn.shenui.yanyangPlugin.YanyangPlugin
+api-version: '1.20'
