@@ -1,2 +1,15 @@
 # 项目排除路径
 /.gradle/
+/src/main/
+/src/main/resources/paper-plugin.yml
+/gradlew.bat
+/src/main/resources/config.yml
+/settings.gradle
+/gradle/
+/src/
+/gradle.properties
+/.gitignore
+/build.gradle
+/src/main/java/
+/gradlew
+/src/main/resources/

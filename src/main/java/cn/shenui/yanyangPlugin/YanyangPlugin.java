@@ -1,17 +1,231 @@
 package cn.shenui.yanyangPlugin;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class YanyangPlugin extends JavaPlugin {
 
+    private FileConfiguration config;
+    private File configFile;
+    private BukkitTask cleanerTask;
+    private static final Pattern HEX_PATTERN = Pattern.compile("&([a-f0-9k-or])");
+
     @Override
     public void onEnable() {
-        // Plugin startup logic
+        saveDefaultConfig();
+        loadConfig();
+
+        startCleanerTask();
+
+        System.out.println("\n" +
+                "\n" +
+                "[YanyangPlugin] 插件正在加载\n" +
+                "\n" +
+                "--------YanyangPlugin--------\n" +
+                "---版本: 0.01-Paper-1.20.1----\n" +
+                "----------深水6 开发-----------\n" +
+                "\n" +
+                "[YanyangPlugin] 插件加载成功\n"
+        );
 
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        if (cleanerTask != null) {
+            cleanerTask.cancel();
+        }
+
+        System.out.println("\n" +
+                "\n" +
+                "[YanyangPlugin] 插件正在卸载\n" +
+                "\n" +
+                "--------YanyangPlugin--------\n" +
+                "---版本: 0.01-Paper-1.20.1----\n" +
+                "----------深水6 开发-----------\n" +
+                "\n" +
+                "[YanyangPlugin] 插件已卸载\n"
+        );
+    }
+
+    private void loadConfig() {
+        configFile = new File(getDataFolder(), "config.yml");
+
+        if (!configFile.exists()) {
+            saveResource("config.yml", false);
+            getLogger().info("已创建默认配置文件");
+        }
+
+        config = YamlConfiguration.loadConfiguration(configFile);
+
+        config.addDefault("cleaner.enabled", true);
+        config.addDefault("cleaner.threshold", 50);
+        config.addDefault("cleaner.interval", 60);
+        config.addDefault("cleaner.message", "&a[扫地姬] 已清理 %count% 个掉落物！");
+        config.addDefault("cleaner.whitelist", List.of("diamond", "netherite_ingot", "elytra"));
+
+        config.options().copyDefaults(true);
+        try {
+            config.save(configFile);
+        } catch (IOException e) {
+            getLogger().severe("无法保存配置文件: " + e.getMessage());
+        }
+
+        config = YamlConfiguration.loadConfiguration(configFile);
+
+        boolean enabled = config.getBoolean("cleaner.enabled");
+        int threshold = config.getInt("cleaner.threshold");
+        int interval = config.getInt("cleaner.interval");
+        List<String> whitelist = config.getStringList("cleaner.whitelist");
+
+        getLogger().info("========== 配置信息 ==========");
+        getLogger().info("启用状态: " + enabled);
+        getLogger().info("清理阈值: " + threshold);
+        getLogger().info("检查间隔: " + interval + "秒");
+        getLogger().info("白名单: " + String.join(", ", whitelist));
+        getLogger().info("配置文件路径: " + configFile.getAbsolutePath());
+        getLogger().info("==============================");
+    }
+
+    private void startCleanerTask() {
+        boolean enabled = config.getBoolean("cleaner.enabled");
+        int interval = config.getInt("cleaner.interval");
+        int threshold = config.getInt("cleaner.threshold");
+        List<String> whitelist = config.getStringList("cleaner.whitelist");
+
+        getLogger().info("准备启动扫地姬任务...");
+        getLogger().info("enabled=" + enabled + ", interval=" + interval + ", threshold=" + threshold);
+
+        if (!enabled) {
+            getLogger().warning("扫地姬已禁用，跳过启动");
+            return;
+        }
+
+        getLogger().info("启动扫地姬任务 - 检查间隔: " + interval + "秒, 清理阈值: " + threshold);
+        getLogger().info("白名单物品: " + String.join(", ", whitelist));
+
+        cleanerTask = Bukkit.getScheduler().runTaskTimer(this, () -> {
+            int totalItems = 0;
+            int worldCount = 0;
+
+            for (World world : Bukkit.getWorlds()) {
+                Collection<Item> items = world.getEntitiesByClass(Item.class);
+                int itemCount = items.size();
+                totalItems += itemCount;
+                worldCount++;
+
+                if (itemCount > 0) {
+                    getLogger().info("世界 [" + world.getName() + "] 有 " + itemCount + " 个掉落物");
+                }
+            }
+
+            getLogger().info("检测到 " + totalItems + " 个掉落物 (共" + worldCount + "个世界), 阈值: " + threshold);
+
+            if (totalItems >= threshold) {
+                int cleanedCount = 0;
+
+                getLogger().info("达到阈值，开始清理...");
+
+                for (World world : Bukkit.getWorlds()) {
+                    Collection<Item> items = world.getEntitiesByClass(Item.class);
+
+                    for (Item item : items) {
+                        String itemName = item.getItemStack().getType().name().toLowerCase();
+                        boolean isWhitelisted = whitelist.stream()
+                                .anyMatch(whitelistItem -> itemName.contains(whitelistItem.toLowerCase()));
+
+                        if (!isWhitelisted) {
+                            item.remove();
+                            cleanedCount++;
+                        }
+                    }
+                }
+
+                if (cleanedCount > 0) {
+                    String message = config.getString("cleaner.message")
+                            .replace("%count%", String.valueOf(cleanedCount));
+
+                    Component coloredMessage = parseColor(message);
+
+                    Bukkit.broadcast(coloredMessage);
+
+                    for (Player player : Bukkit.getOnlinePlayers()) {
+                        player.sendMessage(coloredMessage);
+                    }
+
+                    getLogger().info("✓ 已清理 " + cleanedCount + " 个掉落物");
+                } else {
+                    getLogger().info("所有掉落物都在白名单中，未清理");
+                }
+            } else {
+                getLogger().info("未达到阈值，不清理");
+            }
+        }, 20L * interval, 20L * interval);
+
+        getLogger().info("扫地姬任务已成功启动！");
+    }
+
+    private Component parseColor(String message) {
+        Matcher matcher = HEX_PATTERN.matcher(message);
+        StringBuilder buffer = new StringBuilder();
+
+        while (matcher.find()) {
+            String colorCode = matcher.group(1);
+            StringBuilder replacement = new StringBuilder();
+
+            switch (colorCode.toLowerCase()) {
+                case "0": replacement.append("<black>"); break;
+                case "1": replacement.append("<dark_blue>"); break;
+                case "2": replacement.append("<dark_green>"); break;
+                case "3": replacement.append("<dark_aqua>"); break;
+                case "4": replacement.append("<dark_red>"); break;
+                case "5": replacement.append("<dark_purple>"); break;
+                case "6": replacement.append("<gold>"); break;
+                case "7": replacement.append("<gray>"); break;
+                case "8": replacement.append("<dark_gray>"); break;
+                case "9": replacement.append("<blue>"); break;
+                case "a": replacement.append("<green>"); break;
+                case "b": replacement.append("<aqua>"); break;
+                case "c": replacement.append("<red>"); break;
+                case "d": replacement.append("<light_purple>"); break;
+                case "e": replacement.append("<yellow>"); break;
+                case "f": replacement.append("<white>"); break;
+                case "k": replacement.append("<obfuscated>"); break;
+                case "l": replacement.append("<bold>"); break;
+                case "m": replacement.append("<strikethrough>"); break;
+                case "n": replacement.append("<underlined>"); break;
+                case "o": replacement.append("<italic>"); break;
+                case "r": replacement.append("<reset>"); break;
+                default: replacement.append("&").append(colorCode); break;
+            }
+
+            matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement.toString()));
+        }
+        matcher.appendTail(buffer);
+
+        return net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(buffer.toString());
+    }
+
+    public void reloadConfig() {
+        loadConfig();
+        if (cleanerTask != null) {
+            cleanerTask.cancel();
+        }
+        startCleanerTask();
     }
 }

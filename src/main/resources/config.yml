@@ -1,0 +1,20 @@
+  # YanyangPlugin 配置文件
+  # 扫地姬设置
+
+  cleaner:
+    # 是否启用扫地姬
+    enabled: true
+
+    # 当掉落物数量超过此值时触发清理
+    threshold: 50
+
+    # 检查间隔（秒）
+    interval: 10
+
+    # 清理时的广播消息（支持颜色代码）
+    message: "&b&l[扫地姬] &6&o&l已清理 %count% 个掉落物！"
+
+    # 白名单物品类型（不会被清理的物品，匹配名称中包含的关键字）
+    whitelist:
+      #- diamond
+      #- netherite_ingot
