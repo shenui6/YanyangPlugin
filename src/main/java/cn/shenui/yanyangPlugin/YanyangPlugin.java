@@ -42,7 +42,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在加载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.2-Paper-1.20.1----\n" +
+                "---版本: 1.3-Paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件加载成功\n"
@@ -61,7 +61,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在卸载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.2-Paper-1.20.1----\n" +
+                "---版本: 1.3-Paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件已卸载\n"
