@@ -2,6 +2,7 @@
 
   # 扫地姬设置
   cleaner:
+
     # 是否启用扫地姬
     enabled: true
 
@@ -22,5 +23,3 @@
 
     # 白名单物品类型（不会被清理的物品，匹配名称中包含的关键字）
     whitelist:
-      #- diamond
-      #- netherite_ingot

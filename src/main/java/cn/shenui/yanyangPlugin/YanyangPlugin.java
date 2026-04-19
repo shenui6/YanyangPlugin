@@ -1,6 +1,7 @@
 package cn.shenui.yanyangPlugin;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,7 +38,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在加载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 0.01-Paper-1.20.1----\n" +
+                "---版本: 1.0-paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件加载成功\n"
@@ -56,7 +57,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在卸载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 0.01-Paper-1.20.1----\n" +
+                "---版本: 1.0-paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件已卸载\n"
@@ -269,7 +270,7 @@ public final class YanyangPlugin extends JavaPlugin {
         }
         matcher.appendTail(buffer);
 
-        return net.kyori.adventure.text.minimessage.MiniMessage.miniMessage().deserialize(buffer.toString());
+        return MiniMessage.miniMessage().deserialize(buffer.toString());
     }
 
     public void reloadConfig() {
