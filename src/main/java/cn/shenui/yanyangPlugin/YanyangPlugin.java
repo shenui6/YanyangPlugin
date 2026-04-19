@@ -1,8 +1,7 @@
 package cn.shenui.yanyangPlugin;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -25,10 +24,6 @@ public final class YanyangPlugin extends JavaPlugin {
     private File configFile;
     private BukkitTask cleanerTask;
     private static final Pattern HEX_PATTERN = Pattern.compile("&([a-f0-9k-or])");
-    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
-            .hexColors()
-            .useUnusualXRepeatedCharacterHexFormat()
-            .build();
 
     @Override
     public void onEnable() {
@@ -42,7 +37,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在加载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.4-paper-1.20.1----\n" +
+                "---版本: 1.5-paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件加载成功\n"
@@ -61,7 +56,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在卸载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.4-paper-1.20.1----\n" +
+                "---版本: 1.5-paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件已卸载\n"
@@ -216,13 +211,9 @@ public final class YanyangPlugin extends JavaPlugin {
                     String message = config.getString("cleaner.message")
                             .replace("%count%", String.valueOf(countMode.equalsIgnoreCase("item") ? cleanedItems : cleanedEntities));
 
-                    Component coloredMessage = parseColor(message);
+                    String coloredMessage = parseColor(message);
 
-                    Bukkit.broadcast(coloredMessage);
-
-                    for (Player player : Bukkit.getOnlinePlayers()) {
-                        player.sendMessage(coloredMessage);
-                    }
+                    Bukkit.broadcastMessage(coloredMessage);
 
                     getLogger().info("✓ 已清理 " + cleanedEntities + " 个掉落物实体 (共 " + cleanedItems + " 个物品)，消息已发送到聊天栏");
                 } else {
@@ -236,7 +227,7 @@ public final class YanyangPlugin extends JavaPlugin {
         getLogger().info("扫地姬任务已成功启动！");
     }
 
-    private Component parseColor(String message) {
+    private String parseColor(String message) {
         Matcher matcher = HEX_PATTERN.matcher(message);
         StringBuffer buffer = new StringBuffer();
 
@@ -247,7 +238,7 @@ public final class YanyangPlugin extends JavaPlugin {
         }
         matcher.appendTail(buffer);
 
-        return LEGACY_SERIALIZER.deserialize(buffer.toString());
+        return ChatColor.translateAlternateColorCodes('&', buffer.toString());
     }
 
     public void reloadConfig() {
