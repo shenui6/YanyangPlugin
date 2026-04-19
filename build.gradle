@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'cn.shenui'
-version = '1.1-paper-1.20.1'
+version = '1.2-paper-1.20.1'
 
 repositories {
     mavenCentral()

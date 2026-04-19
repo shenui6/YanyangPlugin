@@ -42,7 +42,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在加载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.1-Paper-1.20.1----\n" +
+                "---版本: 1.2-Paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件加载成功\n"
@@ -61,7 +61,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在卸载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.1-Paper-1.20.1----\n" +
+                "---版本: 1.2-Paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件已卸载\n"
@@ -79,10 +79,10 @@ public final class YanyangPlugin extends JavaPlugin {
         config = YamlConfiguration.loadConfiguration(configFile);
 
         config.addDefault("cleaner.enabled", true);
-        config.addDefault("cleaner.threshold", 50);
-        config.addDefault("cleaner.interval", 60);
-        config.addDefault("cleaner.message", "&a[扫地姬] 已清理 %count% 个掉落物！");
-        config.addDefault("cleaner.whitelist", List.of("diamond", "netherite_ingot", "elytra"));
+        config.addDefault("cleaner.threshold", 1000);
+        config.addDefault("cleaner.interval", 30);
+        config.addDefault("cleaner.message", "&b&l[扫地姬] &6&o&l已清理 %count% 个掉落物！");
+        config.addDefault("cleaner.whitelist", List.of(""));
         config.addDefault("cleaner.debug", false);
         config.addDefault("cleaner.count_mode", "entity");
 
