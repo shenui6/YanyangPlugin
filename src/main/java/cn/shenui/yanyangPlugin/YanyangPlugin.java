@@ -1,7 +1,7 @@
 package cn.shenui.yanyangPlugin;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -25,6 +25,10 @@ public final class YanyangPlugin extends JavaPlugin {
     private File configFile;
     private BukkitTask cleanerTask;
     private static final Pattern HEX_PATTERN = Pattern.compile("&([a-f0-9k-or])");
+    private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
+            .hexColors()
+            .useUnusualXRepeatedCharacterHexFormat()
+            .build();
 
     @Override
     public void onEnable() {
@@ -38,7 +42,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在加载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.0-paper-1.20.1----\n" +
+                "---版本: 1.1-Paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件加载成功\n"
@@ -57,7 +61,7 @@ public final class YanyangPlugin extends JavaPlugin {
                 "[YanyangPlugin] 插件正在卸载\n" +
                 "\n" +
                 "--------YanyangPlugin--------\n" +
-                "---版本: 1.0-paper-1.20.1----\n" +
+                "---版本: 1.1-Paper-1.20.1----\n" +
                 "----------深水6 开发-----------\n" +
                 "\n" +
                 "[YanyangPlugin] 插件已卸载\n"
@@ -234,43 +238,16 @@ public final class YanyangPlugin extends JavaPlugin {
 
     private Component parseColor(String message) {
         Matcher matcher = HEX_PATTERN.matcher(message);
-        StringBuilder buffer = new StringBuilder();
+        StringBuffer buffer = new StringBuffer();
 
         while (matcher.find()) {
             String colorCode = matcher.group(1);
-            StringBuilder replacement = new StringBuilder();
-
-            switch (colorCode.toLowerCase()) {
-                case "0": replacement.append("<black>"); break;
-                case "1": replacement.append("<dark_blue>"); break;
-                case "2": replacement.append("<dark_green>"); break;
-                case "3": replacement.append("<dark_aqua>"); break;
-                case "4": replacement.append("<dark_red>"); break;
-                case "5": replacement.append("<dark_purple>"); break;
-                case "6": replacement.append("<gold>"); break;
-                case "7": replacement.append("<gray>"); break;
-                case "8": replacement.append("<dark_gray>"); break;
-                case "9": replacement.append("<blue>"); break;
-                case "a": replacement.append("<green>"); break;
-                case "b": replacement.append("<aqua>"); break;
-                case "c": replacement.append("<red>"); break;
-                case "d": replacement.append("<light_purple>"); break;
-                case "e": replacement.append("<yellow>"); break;
-                case "f": replacement.append("<white>"); break;
-                case "k": replacement.append("<obfuscated>"); break;
-                case "l": replacement.append("<bold>"); break;
-                case "m": replacement.append("<strikethrough>"); break;
-                case "n": replacement.append("<underlined>"); break;
-                case "o": replacement.append("<italic>"); break;
-                case "r": replacement.append("<reset>"); break;
-                default: replacement.append("&").append(colorCode); break;
-            }
-
-            matcher.appendReplacement(buffer, Matcher.quoteReplacement(replacement.toString()));
+            char replacement = colorCode.charAt(0);
+            matcher.appendReplacement(buffer, "§" + replacement);
         }
         matcher.appendTail(buffer);
 
-        return MiniMessage.miniMessage().deserialize(buffer.toString());
+        return LEGACY_SERIALIZER.deserialize(buffer.toString());
     }
 
     public void reloadConfig() {
